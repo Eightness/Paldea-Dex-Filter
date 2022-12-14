@@ -41,18 +41,24 @@ for pokemon in csvreader:
         unbanned_pokemon_list[str(pokemon[COL_ID])][data[i]] = pokemon[i]
 # Diccionario de la Pokédex de Paldea (excepto baneados)
 
+# main -----------------------------------------------------------------------------------------------
 
 def main():
 
     cmd = None
     filtered_pkm_list = unbanned_pokemon_list.copy()
+    team_pkm_list_provisional = {}
+    team_pkm_list_final = {}
+    team_list = {}
 
     print("")
     print("Welcome to the Paldea Dex filter!")
     print("Made by Bertus :)")
     print("")
-    print("Use the commands 'filter' or 'search'.")
-    print("You can filter by stats or/and types.")
+    print("Use the commands 'filter', 'search' or 'team'.")
+    print("You can filter by stats and/or types.")
+    print("You can search by name.")
+    print("You can build a team, adding and removing Pokemon.")
     print("Enjoy.")
     print("")
 
@@ -61,9 +67,14 @@ def main():
         cmd = input(">")
         cmd_list = list(cmd.split(" "))
 
-        if cmd_list[0] == "filter":
+        if cmd_list[0] == "filter":  
             if cmd_list[1] == "total_stats":
                 filtered_pkm_list = pkm_total_stats(filtered_pkm_list, int(cmd_list[2]))
+                print_pokemon(filtered_pkm_list)
+                print("")
+
+            if cmd_list[1] == "hp":
+                filtered_pkm_list = pkm_hp(filtered_pkm_list, int(cmd_list[2]))
                 print_pokemon(filtered_pkm_list)
                 print("")
 
@@ -129,16 +140,26 @@ def main():
 
         if cmd_list[0] == "team":
             if cmd_list[1] == "add":
-                pkm_teambuilder_add(filtered_pkm_list, cmd_list[2])
+                team_list = pkm_teambuilder_add(filtered_pkm_list, team_pkm_list_provisional, team_pkm_list_final, cmd_list[2])
 
             if cmd_list[1] == "remove":
-                pkm_teambuilder_remove(filtered_pkm_list, cmd_list[2])
+                team_list = pkm_teambuilder_remove(team_list, cmd_list[2])
 
             if cmd_list[1] == "show":
-                pkm_teambuilder_show(filtered_pkm_list)
+                if team_list:
+                    print("")
+                    print_pokemon(team_list)
+                    print("")
+                else:
+                    print("")
+                    print("There is no team yet.")
+                    print("")
 
             if cmd_list[1] == "reset":
-                pkm_teambuilder_reset(filtered_pkm_list, cmd_list[2])
+                team_list = {}
+                print("")
+                print("Team is successfully reseted.")
+                print("")
 
         if cmd_list[0] == "reset":
             filtered_pkm_list = unbanned_pokemon_list.copy()
@@ -156,29 +177,55 @@ def main():
             print("")
 
 
-# A pesar de la nomenclatura de "pkm_list", se trata de un diccionario, no de una lista
+# print -----------------------------------------------------------------------------------------------
 
 def print_pokemon(pkm_list):
     for id, attributes in pkm_list.items():
-        print(attributes[COL_NAME] + " | Form: " + attributes["Form"] + " | Types: " + attributes["Type1"] + ", " + attributes["Type2"] + " | Total stats: " +  attributes["Total"] + " | Sp. Atk: " +  attributes["Sp. Atk"] + " | Attack: " +  attributes["Attack"] + " | Sp. Def: " +  attributes["Sp. Def"] + " | Defense: " +  attributes["Defense"] + " | Speed: " +  attributes["Speed"])
+        print(attributes[COL_NAME] + " | Form: " + attributes["Form"] + " | Types: " + attributes["Type1"] + ", " + attributes["Type2"] + " | Total stats: " +  attributes["Total"] + " | HP: " + attributes["HP"] + " | Sp. Atk: " +  attributes["Sp. Atk"] + " | Attack: " +  attributes["Attack"] + " | Sp. Def: " +  attributes["Sp. Def"] + " | Defense: " +  attributes["Defense"] + " | Speed: " +  attributes["Speed"])
 
-def pkm_teambuilder_add(pkm_list, added_pokemon):
-    team_list = []
-    for id, attributes in pkm_list.items():
+# team builder -----------------------------------------------------------------------------------------------
+
+def pkm_teambuilder_add(pkm_list1, pkm_list2, pkm_list3, added_pokemon):
+    to_delete = []
+    pkm_list2 = pkm_list1.copy()
+    for id, attributes in pkm_list1.items():
         if added_pokemon.lower() in attributes["Name"].lower():
-            team_list.append(attributes)
+            continue
+        else:
+            to_delete.append(id)
 
-    team_list_final = team_list.copy()
+    for id in to_delete:
+        pkm_list2.pop(id)
+
+    pkm_list3.update(pkm_list2)
 
     print("")
-    print(f"Added {team_list_final}.")
+    print(f"Added {added_pokemon.capitalize()}.")
+    print("")
+
+    return pkm_list3
+
+def pkm_teambuilder_remove(team_list, removed_pokemon):
+    to_delete = []
+    for id, attributes in team_list.items():
+        if removed_pokemon.lower() in attributes["Name"].lower():
+            to_delete.append(id)
+
+    for id in to_delete:
+        team_list.pop(id)
+
+    print("")
+    print(f"Removed {removed_pokemon.capitalize()}")
     print("")
 
     return team_list
 
-def pkm_teambuilder_show(team_list):
+def pkm_teambuilder_reset(team_list):
+    team_list = {}
 
-    print(team_list)
+    return team_list
+
+# total stats -----------------------------------------------------------------------------------------------
 
 def pkm_total_stats(pkm_list, total):
     print("")
@@ -188,6 +235,23 @@ def pkm_total_stats(pkm_list, total):
     to_delete = []
     for id, attributes in pkm_list.items():
         if int(attributes["Total"]) < total:
+            to_delete.append(id)
+    
+    for id in to_delete:
+        pkm_list.pop(id)
+    
+    return pkm_list
+
+# single stats -----------------------------------------------------------------------------------------------
+
+def pkm_hp(pkm_list, hp):
+    print("")
+    print(f"Pokemon HP >= {hp}: ")
+    print("")
+
+    to_delete = []
+    for id, attributes in pkm_list.items():
+        if int(attributes["HP"]) < hp:
             to_delete.append(id)
     
     for id in to_delete:
@@ -270,6 +334,8 @@ def pkm_speed(pkm_list, speed):
     
     return pkm_list
 
+# double stats -----------------------------------------------------------------------------------------------
+
 def pkm_spatk_speed(pkm_list, spatk, speed):
     print("")
     print(f"Pokemon with Sp. Attack >= {spatk} and Speed >= {speed}: ")
@@ -330,6 +396,7 @@ def pkm_def_hp(pkm_list, defense, hp):
 
     return pkm_list
 
+# types -----------------------------------------------------------------------------------------------
 
 def pkm_type(pkm_list, type1):
     print("")
@@ -361,6 +428,8 @@ def pkm_types(pkm_list, type1, type2):
 
     return pkm_list
 
+# search -----------------------------------------------------------------------------------------------
+
 def pkm_namefilter(pkm_list, name):
     print("")
 
@@ -376,5 +445,6 @@ def pkm_namefilter(pkm_list, name):
 
     return pkm_list
 
+# end -----------------------------------------------------------------------------------------------
 
 main()
