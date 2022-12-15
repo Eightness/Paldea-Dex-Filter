@@ -48,6 +48,7 @@ def main():
     cmd = None
     filtered_pkm_list = unbanned_pokemon_list.copy()
     filtered_team_list = unbanned_pokemon_list.copy()
+    search_pkm_list = unbanned_pokemon_list.copy()
     team_list_provisional = {}
     team_list = {}
 
@@ -141,9 +142,7 @@ def main():
                 print("")
 
         if cmd_list[0] == "search":
-            pkm_namefilter(filtered_pkm_list, cmd_list[1])
-            print_pokemon(filtered_pkm_list)
-            print("")
+            pkm_namefilter(search_pkm_list, cmd_list[1])
 
         if cmd_list[0] == "team":
             if cmd_list[1] == "add":
@@ -466,15 +465,21 @@ def pkm_types(pkm_list, type1, type2):
 def pkm_namefilter(pkm_list, name):
     print("")
 
+    search_list = pkm_list.copy()
+
     to_delete = []
-    for id, attributes in pkm_list.items():
+    for id, attributes in search_list.items():
         if name.lower() in attributes["Name"].lower():
             continue
         else:
             to_delete.append(id)
 
     for id in to_delete:
-        pkm_list.pop(id)
+        search_list.pop(id)
+
+    print("")
+    print(search_list)
+    print("")
 
     return pkm_list
 
