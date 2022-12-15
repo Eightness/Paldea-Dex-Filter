@@ -480,7 +480,7 @@ def pkm_namefilter(pkm_list, name):
     if len(search_list) > 0:
         for id, attributes in search_list.items():
             print(attributes["Name"] + " | Form: " + attributes["Form"] + " | Types: " + attributes["Type1"] + ", " + attributes["Type2"] + " | Total stats: " +  attributes["Total"] + " | HP: " + attributes["HP"] + " | Sp. Atk: " +  attributes["Sp. Atk"] + " | Attack: " +  attributes["Attack"] + " | Sp. Def: " +  attributes["Sp. Def"] + " | Defense: " +  attributes["Defense"] + " | Speed: " +  attributes["Speed"])
-            
+
     else:
         print(f"{name.capitalize()} not found.")
 
