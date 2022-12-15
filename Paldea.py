@@ -47,18 +47,19 @@ def main():
 
     cmd = None
     filtered_pkm_list = unbanned_pokemon_list.copy()
-    team_pkm_list_provisional = {}
-    team_pkm_list_final = {}
+    filtered_team_list = unbanned_pokemon_list.copy()
+    team_list_provisional = {}
     team_list = {}
 
     print("")
     print("Welcome to the Paldea Dex filter!")
     print("Made by Bertus :)")
     print("")
-    print("Use the commands 'filter', 'search' or 'team'.")
+    print("Use the commands 'filter', 'search', 'team' or 'save'.")
     print("You can filter by stats and/or types.")
     print("You can search by name.")
     print("You can build a team, adding and removing Pokemon.")
+    print("You can also save the filter list or the team.")
     print("Enjoy.")
     print("")
 
@@ -66,6 +67,12 @@ def main():
 
         cmd = input(">")
         cmd_list = list(cmd.split(" "))
+
+        if cmd_list[0] != "filter" and cmd_list[0] != "search" and cmd_list[0] != "team" and cmd_list[0] != "save" and cmd_list[0] != "reset":
+            print("")
+            print("There is no such command.") 
+            print("Try again.")
+            print("")
 
         if cmd_list[0] == "filter":  
             if cmd_list[1] == "total_stats":
@@ -140,7 +147,7 @@ def main():
 
         if cmd_list[0] == "team":
             if cmd_list[1] == "add":
-                team_list = pkm_teambuilder_add(filtered_pkm_list, team_pkm_list_provisional, team_pkm_list_final, cmd_list[2])
+                team_list = pkm_teambuilder_add(filtered_team_list, team_list_provisional, team_list, cmd_list[2])
 
             if cmd_list[1] == "remove":
                 team_list = pkm_teambuilder_remove(team_list, cmd_list[2])
@@ -152,7 +159,7 @@ def main():
                     print("")
                 else:
                     print("")
-                    print("There is no team yet.")
+                    print("Team is empty.")
                     print("")
 
             if cmd_list[1] == "reset":
@@ -168,13 +175,22 @@ def main():
             print("")
             
         if cmd_list[0] == "save":
-            with open(f"{cmd_list[1]}.csv", "w+") as f:
-                for id, attributes in filtered_pkm_list.items():
-                    f.write("%s:%s\n" % (id, attributes))
+            if cmd_list[1] == "filter":
+                with open(f"{cmd_list[2]}.csv", "w+") as f:
+                    for id, attributes in filtered_pkm_list.items():
+                        f.write("%s:%s\n" % (id, attributes))
 
-            print("")
-            print(f"List successfully saved as {cmd_list[1]}.csv")
-            print("")
+                print("")
+                print(f"List successfully saved as {cmd_list[2]}.csv")
+                print("")
+            if cmd_list[1] == "team":
+                with open(f"{cmd_list[2]}.csv", "w+") as f:
+                    for id, attributes in team_list.items():
+                        f.write("%s:%s\n" % (id, attributes))
+
+                print("")
+                print(f"Team successfully saved as {cmd_list[2]}.csv")
+                print("")
 
 
 # print -----------------------------------------------------------------------------------------------
@@ -185,38 +201,55 @@ def print_pokemon(pkm_list):
 
 # team builder -----------------------------------------------------------------------------------------------
 
-def pkm_teambuilder_add(pkm_list1, pkm_list2, pkm_list3, added_pokemon):
+def pkm_teambuilder_add(pkm_list, team_list_provisional, team_list, added_pokemon):
     to_delete = []
-    pkm_list2 = pkm_list1.copy()
-    for id, attributes in pkm_list1.items():
-        if added_pokemon.lower() in attributes["Name"].lower():
-            continue
-        else:
-            to_delete.append(id)
+    team_list_provisional = pkm_list.copy()
 
-    for id in to_delete:
-        pkm_list2.pop(id)
+    if len(team_list) < 6:
+        for id, attributes in pkm_list.items():
+            if added_pokemon.lower() in attributes["Name"].lower():
+                print("")
+                print(f"Added {added_pokemon.capitalize()}.")
+                print("")
+                continue
+            else:
+                to_delete.append(id)
 
-    pkm_list3.update(pkm_list2)
+        for id in to_delete:
+            team_list_provisional.pop(id)
 
-    print("")
-    print(f"Added {added_pokemon.capitalize()}.")
-    print("")
+        if len(team_list_provisional) == 0:
+            print("")
+            print(f"{added_pokemon.capitalize()} does not exist in Paldea.")
+            print("")
 
-    return pkm_list3
+        team_list.update(team_list_provisional)
+
+    else:
+        print("")
+        print("Team is full.")
+        print("")
+
+    return team_list
 
 def pkm_teambuilder_remove(team_list, removed_pokemon):
     to_delete = []
-    for id, attributes in team_list.items():
-        if removed_pokemon.lower() in attributes["Name"].lower():
-            to_delete.append(id)
+    if len(team_list) != 0:
+        for id, attributes in team_list.items():
+            if removed_pokemon.lower() in attributes["Name"].lower():
+                to_delete.append(id)
 
-    for id in to_delete:
-        team_list.pop(id)
+        for id in to_delete:
+            team_list.pop(id)
 
-    print("")
-    print(f"Removed {removed_pokemon.capitalize()}")
-    print("")
+        print("")
+        print(f"Removed {removed_pokemon.capitalize()}.")
+        print("")
+
+    else:
+        print("")
+        print("There is no team yet.")
+        print("")
 
     return team_list
 
