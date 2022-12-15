@@ -463,7 +463,6 @@ def pkm_types(pkm_list, type1, type2):
 # search -----------------------------------------------------------------------------------------------
 
 def pkm_namefilter(pkm_list, name):
-    print("")
 
     search_list = pkm_list.copy()
 
@@ -477,11 +476,12 @@ def pkm_namefilter(pkm_list, name):
     for id in to_delete:
         search_list.pop(id)
 
-    print("")
-    print(search_list)
-    print("")
-
-    return pkm_list
+    for id, attributes in search_list.items():
+        print("")
+        print(attributes["Name"] + " | Form: " + attributes["Form"] + " | Types: " + attributes["Type1"] + ", " + attributes["Type2"] + " | Total stats: " +  attributes["Total"] + " | HP: " + attributes["HP"] + " | Sp. Atk: " +  attributes["Sp. Atk"] + " | Attack: " +  attributes["Attack"] + " | Sp. Def: " +  attributes["Sp. Def"] + " | Defense: " +  attributes["Defense"] + " | Speed: " +  attributes["Speed"])
+        print("")
+        
+    return search_list
 
 # end -----------------------------------------------------------------------------------------------
 
