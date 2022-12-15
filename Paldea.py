@@ -9,10 +9,10 @@ COL_TOTAL = "Total"
 COL_HP = "HP"
 COL_ATTACK = "Attack"
 COL_DEFENSE = "Defense"
-COL_SPATK = 9
-COL_SPDEF = 10
-COL_SPEED = 11
-COL_GEN = 12
+COL_SPATK = "Sp. Atk"
+COL_SPDEF = "Sp. Def"
+COL_SPEED = "Speed"
+COL_GEN = "Generation"
 COL_BANNED = 13
 
 file = open("paldea_dex.csv")
@@ -463,6 +463,7 @@ def pkm_types(pkm_list, type1, type2):
 # search -----------------------------------------------------------------------------------------------
 
 def pkm_namefilter(pkm_list, name):
+    print("")
 
     search_list = pkm_list.copy()
 
@@ -478,14 +479,12 @@ def pkm_namefilter(pkm_list, name):
 
     if len(search_list) > 0:
         for id, attributes in search_list.items():
-            print("")
             print(attributes["Name"] + " | Form: " + attributes["Form"] + " | Types: " + attributes["Type1"] + ", " + attributes["Type2"] + " | Total stats: " +  attributes["Total"] + " | HP: " + attributes["HP"] + " | Sp. Atk: " +  attributes["Sp. Atk"] + " | Attack: " +  attributes["Attack"] + " | Sp. Def: " +  attributes["Sp. Def"] + " | Defense: " +  attributes["Defense"] + " | Speed: " +  attributes["Speed"])
-            print("")
-        
+            
     else:
-        print("")
         print(f"{name.capitalize()} not found.")
-        print("")
+
+    print("")
 
     return search_list
 
